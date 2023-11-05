@@ -1,0 +1,39 @@
+<div>
+  <div>{{ shop.name }}</div>
+{%- assign logo_height = section.settings.logo_width | divided_by: section.settings.logo.aspect_ratio -%}
+{% capture sizes %}(max-width: {{ section.settings.logo_width | times: 2 }}px) 50vw, {{ section.settings.logo_width }}px{% endcapture %}
+{% capture widths %}
+  {{ section.settings.logo_width }}, {{ section.settings.logo_width | times: 1.5 | round }}, {{ section.settings.logo_width | times: 2 }}{% endcapture %}
+{{ section.settings.logo | image_url: width: 600 | image_tag:
+ class: 'header-logo',
+ widths: widths,
+ height: logo_height,
+ width: section.settings.logo_width,
+ alt: logo_alt,
+ sizes: sizes,
+ preload: true }}
+</div>
+{% render 'header-drawer-card' %}
+
+{% schema %}
+  {
+    "name": "Header",
+    "tag": "header",
+    "class": "header",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "logo"
+      }, {
+        "type": "range",
+        "id": "logo_width",
+        "label": "Logo width",
+        "max": 300,
+        "min": 20,
+        "default": 50,
+        "step": 10
+      }
+    ]
+  }
+{% endschema %}
