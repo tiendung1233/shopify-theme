@@ -1,5 +1,109 @@
-<button class="header-hamburger">
-    <span class="header-hamburger-bar"></span>
-    <span class="header-hamburger-bar"></span>
-    <span class="header-hamburger-bar"></span>
-  </button>
+<button id="header_burger" class="header_open-main-nav">
+  <span class="header_burger"></span>
+</button>
+<ul id="header_nav-drawer" class="header_nav-drawer">
+  {% for link in section.settings.menu.links %}
+    <li class="header_nav-drawer-item">
+      {%- if link.links != blank -%}
+        <span class="header_nav-drawer-lv2">
+          {{ link.title }}
+          {% render 'icon-caret' %}
+        </span>
+        {% if link.links != blank %}
+          <ul class="header_nav-drawer_content-lv2">
+            {% for childlink in link.links %}
+              <li class="header_nav-drawer_item-lv2">
+                {%- if childlink.links == blank -%}
+                  <a class="header-nav-anchor" href="{{ link.url }}">
+                    {{ childlink.title }}
+                  </a>
+                {% else %}
+                  <span class="header_nav-drawer-lv3">{{ childlink.title | escape }}
+                    {% render 'icon-caret' %}
+                  </span>
+                  <ul class="header_nav-drawer_content-lv3">
+                    {%- for grandchildlink in childlink.links -%}
+                      <li class="header_nav-drawer_item-lv3">
+                        <a
+                          id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                          href="{{ grandchildlink.url }}"
+                          class=""
+                          {% if grandchildlink.current %}
+                          aria-current="page"
+                          {% endif %}>
+                          {{ grandchildlink.title | escape }}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {%- else -%}
+        <a
+          id="HeaderMenu-{{ link.handle }}"
+          href="{{ link.url }}"
+          class="header_nav-drawer-lv1"
+          {% if link.current %}
+          aria-current="page"
+          {% endif %}>
+          <span
+            {%- if link.current %}
+            class=""
+            {% endif %}>
+            {{- link.title | escape -}}
+          </span>
+        </a>
+      {%- endif -%}
+    </li>
+  {% endfor %}
+</ul>
+<div id="header_nav-overlay" class="header_nav-overlay"></div>
+
+<script>
+  let burger = document.getElementById('header_burger')
+  navOverlay = document.getElementById('header_nav-overlay')
+  navDrawer = document.getElementById('header_nav-drawer')
+
+  const lv2Links = document.querySelectorAll('.header_nav-drawer-lv2');
+  lv2Links.forEach(link => {
+    link.addEventListener('click', () => {
+      const wasActive = link.parentNode.classList.contains('active-item-lv2');
+      lv2Links.forEach(l => l.parentNode.classList.remove('active-item-lv2'));
+      if (! wasActive) {
+        link.parentNode.classList.add('active-item-lv2');
+      }
+      link.setAttribute('aria-expanded', ! wasActive);
+    });
+  });
+
+  const lv3Links = document.querySelectorAll('.header_nav-drawer-lv3');
+  lv3Links.forEach(link => {
+    link.addEventListener('click', () => {
+      const wasActive = link.parentNode.classList.contains('active-item-lv3');
+      lv3Links.forEach(l => l.parentNode.classList.remove('active-item-lv3'));
+      if (!wasActive) {
+        link.parentNode.classList.add('active-item-lv3');
+      }
+      link.setAttribute('aria-expanded', !wasActive);
+    });
+  });
+
+  burger.addEventListener('click', function(e) {
+    this.classList.toggle('nav-active');
+    navOverlay.classList.toggle('nav-active');
+    navDrawer.classList.toggle('nav-active')
+  });
+
+  navOverlay.addEventListener('click', function(e) {
+    burger.classList.remove('nav-active');
+    navDrawer
+      .classList
+      .remove('nav-active')
+      navOverlay
+      .classList
+      .remove('nav-active');
+  });
+</script>
