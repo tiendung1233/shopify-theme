@@ -1,0 +1,106 @@
+
+<nav class="header-navigation">
+  <ul class="header-menu-card">
+    {% for link in section.settings.menu.links %}
+      <li class="header-menu-card__item-lv1">
+        {%- if link.links != blank -%}
+          <span class="header-menu-card__item-title-lv1">
+            {{ link.title }}
+            {% render 'icon-caret' %}
+          </span>
+          {% if link.links != blank %}
+            <ul class="header-menu-card__content-lv2">
+              {% for childlink in link.links %}
+                <li class="header-menu-card__item-lv2">
+                  {%- if childlink.links == blank -%}
+                    <a href="{{ link.url }}">
+                      {{ childlink.title }}
+                    </a>
+                  {% else %}
+                    <span class="header-menu-card__item-title-lv3">
+                      {{ childlink.title | escape }}
+                      {% render 'icon-caret' %}
+                    </span>
+                    <ul class="header-menu-card__content-lv3">
+                      {%- for grandchildlink in childlink.links -%}
+                        <li class="header-menu-card__item-lv3">
+                          <a
+                            id="HeaderMenu-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
+                            href="{{ grandchildlink.url }}"
+                            class=""
+                            {% if grandchildlink.current %}
+                            aria-current="page"
+                            {% endif %}>
+                            {{ grandchildlink.title | escape }}
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {%- else -%}
+          <a
+            id="HeaderMenu-{{ link.handle }}"
+            href="{{ link.url }}"
+            class=""
+            {% if link.current %}
+            aria-current="page"
+            {% endif %}>
+            <span
+              {%- if link.current %}
+              class=""
+              {% endif %}>
+              {{- link.title | escape -}}
+            </span>
+          </a>
+        {%- endif -%}
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+
+<script>
+  const menuLv1Links = document.querySelectorAll('.header-menu-card__item-lv1');
+  menuLv1Links.forEach(link => {
+    link.addEventListener('click', (event) => {
+      event.stopPropagation(); // To prevent the click event from propagating to the window
+      const wasActive = link.classList.contains('active-item-lv1');
+      menuLv1Links.forEach(l => l.classList.remove('active-item-lv1'));
+      if (!wasActive) {
+        link.classList.add('active-item-lv1');
+      }
+      link.setAttribute('aria-expanded', !wasActive);
+    });
+  });
+  
+  const menuLv2Links = document.querySelectorAll('.header-menu-card__item-lv2');
+  menuLv2Links.forEach(link => {
+    link.addEventListener('click', (event) => {
+      event.stopPropagation(); // To prevent the click event from reaching lv1 links
+      const wasActive = link.classList.contains('active-item-lv2');
+      menuLv2Links.forEach(l => l.classList.remove('active-item-lv2'));
+      if (!wasActive) {
+        link.classList.add('active-item-lv2');
+      }
+      link.setAttribute('aria-expanded', !wasActive);
+    });
+  });
+  
+  // Close lv1 popovers when clicking outside the header or within lv2 content
+  window.addEventListener('click', (event) => {
+    const header = document.querySelector('.header-navigation');
+    const isClickInsideHeader = header.contains(event.target);
+    const isLv2Link = event.target.closest('.header-menu-card__item-lv2');
+  
+    if (!isClickInsideHeader && !isLv2Link) {
+      menuLv1Links.forEach(link => {
+        link.classList.remove('active-item-lv1');
+        link.setAttribute('aria-expanded', false);
+      });
+    }
+  });
+  
+</script>
